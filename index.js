@@ -41,7 +41,8 @@ rl.question('Youtube video URL: ', async (url) => {
 
     if (!ytdl.validateURL(videoUrl)) return console.log('Bad video URL');
 
-    const title = (await ytdl.getBasicInfo(videoUrl)).videoDetails.title.replace(/([^a-z0-9 ]+)/gi, '_');
+    const title = (await ytdl.getBasicInfo(videoUrl)).videoDetails.title.replace(/[/\\?%*:|"<>]/g, '-');
+    console.log(title);
     
     console.log('Downloading...')
     const audio = ytdl(videoUrl, { quality: 'highestaudio', filter: 'audioonly' }).pipe(fs.createWriteStream('temp/audio.mp3'));
