@@ -4,5 +4,8 @@
 - [FFmpeg](https://www.youtube.com/watch?v=qjtmgCb8NcE)
 - Internet connection
 
+## First run
+- `npm i`
+
 ### Running
 - `node .`
