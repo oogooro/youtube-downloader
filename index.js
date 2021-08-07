@@ -9,7 +9,7 @@ const rl = readline.createInterface({
 });
 
 function connectAudioVideo(title) {
-    console.log('Connecting audio + video');
+    console.log('Joining audio + video');
     if (fs.existsSync('temp/output.mp4')) fs.rmSync('temp/output.mp4');
     execSync(`ffmpeg -hide_banner -loglevel error -i temp/video.mp4 -i temp/audio.mp3 -c copy -shortest temp/output.mp4`);
     fs.copyFileSync('temp/output.mp4', `downloaded/${title}.mp4`);
