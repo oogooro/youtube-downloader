@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "oogooro",
   "license": "ISC",
   "dependencies": {
     "ytdl-core": "^4.9.1"
