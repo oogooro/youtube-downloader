@@ -66,7 +66,7 @@ rl.question('Youtube video URL: ', async (url) => {
         audio.once('finish', () => {
             console.log('Downloaded audio.');
             if (downloadedSomething) joinAudioVideo(title);
-            else console.log('Waiting for video to download...');
+            else console.log('Waiting for video to download... \nIf video fail to download try with other resolutions');
             downloadedSomething = true;
         });
 
