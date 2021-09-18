@@ -23,7 +23,7 @@ function joinAudioVideo(title) {
     console.log('Joining audio + video');
     if (fs.existsSync('temp/output.mp4')) fs.rmSync('temp/output.mp4');
 
-    execSync('ffmpeg -hide_banner -loglevel error -i temp/video -i temp/audio -c copy -shortest temp/output.mp4');
+    execSync('ffmpeg -hide_banner -loglevel error -i temp/video -i temp/audio -c copy -strict -2 temp/output.mp4');
     fs.copyFileSync('temp/output.mp4', `downloaded/${title}.mp4`);
 
     cleanupVideo().catch(err => console.log(`Failed to clean ${err}`));
