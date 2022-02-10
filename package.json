@@ -15,6 +15,6 @@
   "author": "oogooro",
   "license": "ISC",
   "dependencies": {
-    "ytdl-core": "^4.10.0"
+    "ytdl-core": "^4.10.1"
   }
 }
