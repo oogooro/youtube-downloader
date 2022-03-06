@@ -1,7 +1,7 @@
 # youtube-downloader
+Download youtube videos in max resolution and framerate, or just download mp3
 ### Requirements
 - [Node.js](https://nodejs.org)
-- [FFmpeg](https://www.youtube.com/watch?v=qjtmgCb8NcE)
 - Internet connection
 
 ## First run
