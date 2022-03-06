@@ -209,8 +209,6 @@ async function askForVideoUrl() {
         if (formatData.qualityLabel && formatData.container === 'mp4' && !formatData.hasAudio && !resolutions.includes(format)) resolutions.push(format);
     });
 
-    console.log(resolutions)
-
     askForOptions(resolutions, videoUrl, videoInfo);
 }
 
