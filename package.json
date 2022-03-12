@@ -1,8 +1,8 @@
 {
   "name": "youtube-downloader",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "",
-  "main": "index.js",
+  "main": "ytd.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node ."

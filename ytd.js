@@ -1,10 +1,23 @@
+#!/usr/bin/env node
+
 const ytdl = require('ytdl-core');
 const fs = require('fs-extra');
 const ffmpeg = require('ffmpeg-static');
-const { execSync, spawn } = require('child_process');
+const { spawn } = require('child_process');
 const prompts = require('prompts');
 const colors = require('colors');
 const cliProgress = require('cli-progress');
+const path = require('path');
+const { Command } = require('commander');
+
+const program = new Command()
+    .version(require('./package.json').version)
+    .argument('[url]', 'youtube video url')
+    .action(url => {
+        askForVideoUrl(url);
+    });
+
+program.parse();
 
 // this https://github.com/fent/node-ytdl-core/blob/HEAD/example/ffmpeg.js
 // and this https://github.com/fent/node-ytdl-core/blob/f47dd0d5ffcd07c68b12a38d1747813016d069f4/example/progress.js
@@ -27,9 +40,9 @@ function formatBytes(bytes, decimals = 2) { // stolen from https://stackoverflow
 
 async function cleanup() {
     return await Promise.all([
-        fs.rm('temp/output.mp4'),
-        fs.rm('temp/video'),
-        fs.rm('temp/audio'),
+        fs.rm(path.join(__dirname, 'temp/output.mp4')),
+        fs.rm(path.join(__dirname, 'temp/video')),
+        fs.rm(path.join(__dirname, 'temp/audio')),
     ]);
 }
 
@@ -43,7 +56,6 @@ function downloadAudio(videoUrl, videoInfo) {
     });
 
     const audioReadStream = ytdl(videoUrl, { quality: 'highestaudio', filter: format => format.container === 'mp4' && !format.hasVideo });
-    // const writeStream = audioReadStream.pipe(fs.createWriteStream('temp/audio'));
     downloadBar.start(100, 0, {
         valueU: '0 MB',
         totalU: 'X MB',
@@ -76,7 +88,7 @@ function downloadAudio(videoUrl, videoInfo) {
 
     ffmpegProcess.on('close', () => {
         downloadBar.stop();
-        fs.rename('temp/output.mp3', `downloaded/audio/${title}.mp3`);
+        fs.rename(path.join(__dirname, 'temp/output.mp3'), path.join(__dirname, `downloaded/audio/${title}.mp3`));
         cleanup().catch(() => { });
         console.log(`Done. Saved as ${title}.mp3`);
     });
@@ -147,7 +159,7 @@ function downloadVideo(format, videoUrl, videoInfo) {
 
     ffmpegProcess.on('close', () => {
         downloadBar.stop()
-        fs.rename('temp/output.mp4', `downloaded/${title}.mp4`).catch(err => {console.log(`Cannot move file: ${err}`.brightRed)});
+        fs.rename(path.join(__dirname, 'temp/output.mp4'), path.join(__dirname, `downloaded/${title}.mp4`)).catch(err => {console.log(`Cannot move file: ${err}`.brightRed)});
         cleanup().catch(() => { });
         console.log(`Done. Saved as ${title}.mp4`);
     });
@@ -175,22 +187,27 @@ async function askForOptions(resolutions, videoUrl, videoInfo) {
     else downloadVideo(result.format, videoUrl, videoInfo);
 }
 
-async function askForVideoUrl() {
-    if (!fs.pathExistsSync('downloaded')) fs.mkdir('downloaded');
-    if (!fs.pathExistsSync('downloaded/audio')) fs.mkdir('downloaded/audio');
-    if (!fs.pathExistsSync('temp')) fs.mkdir('temp');
-    fs.emptyDir('temp');
+async function askForVideoUrl(arg = '') {
+    if (!fs.pathExistsSync(path.join(__dirname, 'downloaded'))) fs.mkdir(path.join(__dirname, 'downloaded'));
+    if (!fs.pathExistsSync(path.join(__dirname, 'downloaded/audio'))) fs.mkdir(path.join(__dirname, 'downloaded/audio'));
+    if (!fs.pathExistsSync(path.join(__dirname, 'temp'))) fs.mkdir(path.join(__dirname, 'temp'));
+    fs.emptyDir(path.join(__dirname, 'temp'));
 
-    const result = await prompts({
-        name: 'url',
-        message: 'Video URL',
-        type: 'text',
-        validate: value => ytdl.validateURL(value) ? true : 'Bad video URL!',
-    }, {
-        onCancel: cancel,
-    });
+    let videoUrl = arg.trim();
 
-    const videoUrl = result.url;
+    if (!arg) {
+        const result = await prompts({
+            name: 'url',
+            message: 'Video URL',
+            type: 'text',
+            validate: value => ytdl.validateURL(value) ? true : 'Bad video URL!',
+        }, {
+            onCancel: cancel,
+        });
+    
+        videoUrl = result.url;
+    }
+    else if (!ytdl.validateURL(arg)) return console.log('Bad video URL!'.red);
 
     const videoInfo = await ytdl.getInfo(videoUrl).catch(err => {
         console.log('Sorry, can\'t download this video'.brightYellow);
@@ -211,5 +228,3 @@ async function askForVideoUrl() {
 
     askForOptions(resolutions, videoUrl, videoInfo);
 }
-
-askForVideoUrl();
