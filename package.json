@@ -17,7 +17,7 @@
   "dependencies": {
     "cli-progress": "^3.10.0",
     "colors": "^1.4.0",
-    "commander": "^9.0.0",
+    "commander": "^9.1.0",
     "ffmpeg-static": "^5.0.0",
     "fs-extra": "^10.0.1",
     "prompts": "^2.4.2",
