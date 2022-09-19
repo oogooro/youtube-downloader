@@ -15,12 +15,12 @@
   "author": "oogooro",
   "license": "MIT",
   "dependencies": {
-    "cli-progress": "^3.10.0",
-    "colors": "^1.4.0",
-    "commander": "^9.1.0",
-    "ffmpeg-static": "^5.0.0",
-    "fs-extra": "^10.0.1",
+    "chalk": "^4.1.2",
+    "cli-progress": "^3.11.2",
+    "commander": "^9.4.0",
+    "ffmpeg-static": "^5.1.0",
+    "fs-extra": "^10.1.0",
     "prompts": "^2.4.2",
-    "ytdl-core": "^4.11.0"
+    "ytdl-core": "^4.11.2"
   }
 }

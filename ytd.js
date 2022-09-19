@@ -5,7 +5,7 @@ const fs = require('fs-extra');
 const ffmpeg = require('ffmpeg-static');
 const { spawn } = require('child_process');
 const prompts = require('prompts');
-const colors = require('colors');
+const chalk = require('chalk');
 const cliProgress = require('cli-progress');
 const path = require('path');
 const { Command } = require('commander');
@@ -18,9 +18,6 @@ const program = new Command()
     });
 
 program.parse();
-
-// this https://github.com/fent/node-ytdl-core/blob/HEAD/example/ffmpeg.js
-// and this https://github.com/fent/node-ytdl-core/blob/f47dd0d5ffcd07c68b12a38d1747813016d069f4/example/progress.js
 
 function cancel() {
     process.exit(130);
@@ -50,7 +47,7 @@ function downloadAudio(videoUrl, videoInfo) {
     const title = videoInfo.videoDetails.title.replace(/[/\\?%*:|"<>]/g, '-');
     const titleTrimmed = title.length > 20 ? title.substring(0, 20 - 3).trim() + "..." : title;
     const downloadBar = new cliProgress.SingleBar({
-        format: `Downloading & encoding |${titleTrimmed}| ${'{bar}'.green} {percentage}% | {valueU}/{totalU}`,
+        format: `Downloading & encoding |${titleTrimmed}| ${chalk.blueBright('{bar}')} {percentage}% | {valueU}/{totalU}`,
         barCompleteChar: '\u2588',
         barIncompleteChar: '\u2591',
     });
@@ -79,9 +76,7 @@ function downloadAudio(videoUrl, videoInfo) {
     ], {
         windowsHide: true,
         stdio: [
-            /* Standard: stdin, stdout, stderr */
             'inherit', 'inherit', 'inherit',
-            /* Custom: pipe:3, pipe:4 */
             'pipe', 'pipe',
         ],
     });
@@ -93,7 +88,6 @@ function downloadAudio(videoUrl, videoInfo) {
         console.log(`Done. Saved as ${title}.mp3`);
     });
 
-    // ffmpegProcess.stdio[3].on('data', console.log);
     audioReadStream.pipe(ffmpegProcess.stdio[4]);
 }
 
@@ -101,7 +95,7 @@ function downloadVideo(format, videoUrl, videoInfo) {
     const title = videoInfo.videoDetails.title.replace(/[/\\?%*:|"<>]/g, '-');
     const titleTrimmed = title.length > 25 ? title.substring(0, 25 - 3).trim() + "..." : title;
     const downloadBar = new cliProgress.MultiBar({
-        format: `{streamName} |${'{bar}'.green}| {percentage}% | {valueU}/{totalU}`,
+        format: `{streamName} |${chalk.blueBright('{bar}')}| {percentage}% | {valueU}/{totalU}`,
         barCompleteChar: '\u2588',
         barIncompleteChar: '\u2591',
     });
@@ -109,7 +103,7 @@ function downloadVideo(format, videoUrl, videoInfo) {
     const videoReadStream = ytdl(videoUrl, { format });
     const audioReadStream = ytdl(videoUrl, { quality: 'highestaudio', filter: format => format.container === 'mp4' && !format.hasVideo });
 
-    console.log(`Downloading ${titleTrimmed}`.bold);
+    console.log(`Downloading ${chalk.bold(titleTrimmed)}`);
 
     const audioBar = downloadBar.create(2137, 0, {
         valueU: '0 MB',
@@ -140,7 +134,7 @@ function downloadVideo(format, videoUrl, videoInfo) {
     });
 
     const ffmpegProcess = spawn(ffmpeg, [
-        '-loglevel', '8', '-hide_banner',  //bruh -hide_banner -loglevel error -y -i temp/video -i temp/audio -c copy -strict -2 temp/output.mp4
+        '-loglevel', '8', '-hide_banner',
         '-progress', 'pipe:3',
         '-i', 'pipe:4',
         '-i', 'pipe:5',
@@ -150,9 +144,7 @@ function downloadVideo(format, videoUrl, videoInfo) {
     ], {
         windowsHide: true,
         stdio: [
-            /* Standard: stdin, stdout, stderr */
             'inherit', 'inherit', 'inherit',
-            /* Custom: pipe:3, pipe:4, pipe:5 */
             'pipe', 'pipe', 'pipe',
         ],
     });
@@ -164,7 +156,6 @@ function downloadVideo(format, videoUrl, videoInfo) {
         console.log(`Done. Saved as ${title}.mp4`);
     });
 
-    // ffmpegProcess.stdio[3].on('data', console.log);
     videoReadStream.pipe(ffmpegProcess.stdio[4]);
     audioReadStream.pipe(ffmpegProcess.stdio[5]);
 }
@@ -200,14 +191,14 @@ async function askForVideoUrl(arg = '') {
             name: 'url',
             message: 'Video URL',
             type: 'text',
-            validate: value => ytdl.validateURL(value) ? true : 'Bad video URL!',
+            validate: value => ytdl.validateURL(value) ? true : 'Invalid video URL!',
         }, {
             onCancel: cancel,
         });
     
         videoUrl = result.url;
     }
-    else if (!ytdl.validateURL(arg)) return console.log('Bad video URL!'.red);
+    else if (!ytdl.validateURL(arg)) return console.log('Invalid video URL!'.red);
 
     const videoInfo = await ytdl.getInfo(videoUrl).catch(err => {
         console.log('Sorry, can\'t download this video'.brightYellow);
