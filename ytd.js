@@ -201,7 +201,8 @@ async function askForVideoUrl(arg = '') {
     else if (!ytdl.validateURL(arg)) return console.log('Invalid video URL!'.red);
 
     const videoInfo = await ytdl.getInfo(videoUrl).catch(err => {
-        console.log('Sorry, can\'t download this video'.brightYellow);
+        console.log(chalk.yellowBright('Something went wrong!'));
+        console.log(chalk.redBright(err));
         return askForVideoUrl();
     });
 
